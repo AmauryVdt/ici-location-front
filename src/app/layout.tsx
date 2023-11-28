@@ -6,8 +6,6 @@ import { ClerkProvider, UserButton } from '@clerk/nextjs'
 import { Footer } from '@/components/footer'
 import { Main } from '@/components/main'
 import { Navbar } from '@/components/navbar'
-import { Header } from '@/components/header'
-
 
 export default function RootLayout({
   children, // will be a page or nested layout
@@ -20,9 +18,9 @@ export default function RootLayout({
       <html lang="en">
       <Flex direction="column" flex="1">
       <Navbar />
-      <Main>
+      <Flex as="main" role="main" direction="column" flex="1" py="100px">
         {children}
-      </Main>
+      </Flex>
       <Footer />
       </Flex>
       </html>
