@@ -18,7 +18,7 @@ export default function RootLayout({
       <html lang="en">
       <Flex direction="column" flex="1">
       <Navbar />
-      <Flex as="main" role="main" direction="column" flex="1" py="100px">
+      <Flex as="main" role="main" direction="column" flex="1" py="100px" px="30px">
         {children}
       </Flex>
       <Footer />

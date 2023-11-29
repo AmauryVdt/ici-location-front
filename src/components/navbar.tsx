@@ -1,18 +1,22 @@
-import { Box, Flex, Button, Heading, Spacer, ButtonGroup, Divider } from '@chakra-ui/react'
+import { Box, Flex, Button, Heading, Spacer, ButtonGroup, Divider, Link } from '@chakra-ui/react'
 import SearchBar from '@/components/searchBar'
 
 export const Navbar = () => {
   return (
-    <Flex position='fixed' bg='white' direction='column' w='full'>
-      <Flex minWidth='max-content' alignItems='center' gap='2' position="static" padding={ '10px' }>
+    <Flex position='fixed' bg='white' direction='column' w='full' zIndex={10}>
+      <Flex minWidth='max-content' alignItems='center' gap='2' position="static" padding={ '15px' } px={10}>
         <Box p='2'>
-          <Heading size='md'>ICI Location</Heading>
+          <Link href='/' style={{ textDecoration: 'none' }}>
+            <Heading size='md'>ICI Location</Heading>
+          </Link>
         </Box>
         <Spacer />
         <SearchBar />
         <Spacer />
         <ButtonGroup size='sm' gap='3'>
-          <Button colorScheme='gray' variant='ghost'>Mettre son bien en ligne</Button>
+          <Link href='/hosts'>
+            <Button w='full' colorScheme='gray' variant='ghost'>Mettre mon bien en ligne</Button>
+          </Link>
           <Button colorScheme='gray' variant='ghost'>Inscription</Button>
           <Button colorScheme='black' variant='solid'>Connexion</Button>
         </ButtonGroup>
