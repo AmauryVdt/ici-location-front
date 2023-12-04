@@ -12,18 +12,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  
   return (
-    <Providers>
-      <html lang="en">
-      <Flex direction="column" flex="1">
-      <Navbar />
-      <Flex as="main" role="main" direction="column" flex="1" py="100px" px="30px">
-        {children}
-      </Flex>
-      <Footer />
-      </Flex>
-      </html>
-    </Providers>
+    <html>
+      <body>
+        <Providers>
+          <Flex direction="column" flex="1">
+            <Navbar />
+            <Flex as="main" role="main" direction="column" flex="1" py="100px" px="30px">
+              {children}
+            </Flex>
+            <Footer />
+          </Flex>
+        </Providers>
+      </body>
+    </html>
+
+
+
   )
 }
