@@ -1,10 +1,13 @@
 
-import { Container, Heading, Flex, Grid, GridItem, Img, Text, Card, CardHeader, Avatar, Box, IconButton, CardBody, Button, SimpleGrid, StackDivider, VStack, AspectRatio } from '@chakra-ui/react'
+import { Container, Heading, Flex, Grid, GridItem, Img, Text, Card, CardHeader, Avatar, Box, IconButton, CardBody, Button, SimpleGrid, StackDivider, VStack, AspectRatio, Input, Badge } from '@chakra-ui/react'
 import { BsThreeDotsVertical } from 'react-icons/bs'
 import { Metadata } from 'next'
-import ShowText from '@/components/showText'
-import Link from 'next/link'
+import dynamic from 'next/dynamic';
+const ShowText = dynamic(() => import('@/components/showText'), {
+    ssr: false,
+  });import Link from 'next/link'
 import { Features } from '@/components/features'
+
 
 export const metadata: Metadata = {
   title: 'Appartement 133m2 à louer à Paris 75000',
@@ -95,7 +98,6 @@ export default function Propertie() {
                           <VStack align={'start'} spacing={4}>
                               <Heading as='h2' size='md'>Description</Heading>
                               <Text>
-                                {text}
                                 <ShowText text={text} />
                               </Text>
                           </VStack>
@@ -125,6 +127,13 @@ export default function Propertie() {
                           </VStack>
                           <VStack id='rdv' align={'start'} spacing={4}>
                               <Heading as='h2' size='md'>Visiter l'appartement</Heading>
+                              <Input
+                                  placeholder="Select Date and Time"
+                                  size="md"
+                                  type="datetime-local"
+                                  step='3600'
+                              />
+                              <input id="appt-time" type="time" name="appt-time" step="3600" />
                           </VStack>
                           <VStack align={'start'} spacing={4}>
                               <Heading as='h2' size='md'>Autres</Heading>
@@ -140,7 +149,12 @@ export default function Propertie() {
                                       <Avatar name='Segun Adebayo' src='https://bit.ly/sage-adebayo' />
 
                                       <Box>
-                                          <Heading size='sm'>Segun Adebayo</Heading>
+                                          <Heading size='sm'>
+                                              Segun Adebayo
+                                              <Badge ml='1' variant='outline' colorScheme='blue'>
+                                                  Pro
+                                              </Badge>
+                                          </Heading>
                                           <Text>3 annonces</Text>
                                       </Box>
                                   </Flex>
