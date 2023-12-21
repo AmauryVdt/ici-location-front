@@ -1,4 +1,4 @@
-import { Text, VStack } from '@chakra-ui/react';
+import { Text, Stack } from '@chakra-ui/react';
 import React from 'react';
 
 interface FeaturesProps {
@@ -10,9 +10,9 @@ interface FeaturesProps {
 
 export const Features = ({ title, text }: FeaturesProps ) => { 
     return (
-        <VStack>
-            <Text as='h3' fontSize='md' fontWeight='bold'>{title}</Text>
-            <Text as='p' fontSize='md'>{text}</Text>
-        </VStack>
+        <Stack direction='column'>
+            <Text as='p' fontSize='xs'>{title}</Text>
+            <Text as='h3' fontSize='md' fontWeight='bold'>{text}</Text>
+        </Stack>
     )
 }

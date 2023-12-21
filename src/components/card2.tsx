@@ -8,7 +8,7 @@ export const Card2 = () => {
     <Center >
       <Box p='3' maxW="320px">
         <LinkBox as='article'>
-          <LinkOverlay href='/properties' />
+          <LinkOverlay href='/propertie' />
           <Image borderRadius="md" src="https://bit.ly/2k1H1t6" />
           <Flex align="baseline" mt={2}>
             <Badge colorScheme="pink">Plus</Badge>
