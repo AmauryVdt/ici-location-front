@@ -2,9 +2,8 @@
 import '@/styles/globals.css'
 import { Providers } from './providers'
 import { Flex } from '@chakra-ui/react'
-import { ClerkProvider, UserButton } from '@clerk/nextjs'
 import { Footer } from '@/components/footer'
-import { Main } from '@/components/main'
+import { usePathname } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 
 export default function RootLayout({
@@ -12,22 +11,33 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html>
-      <body>
-        <Providers>
-          <Flex direction="column" flex="1">
-            <Navbar />
-            <Flex as="main" role="main" direction="column" flex="1" py="100px" px="30px">
-              {children}
+  const pathname = usePathname()
+
+  if (true || pathname !== '/auth/sign-in' && pathname !== '/auth/sign-up')
+    return (
+      <html>
+        <body>
+          <Providers>
+            <Flex direction="column" flex="1">
+              <Navbar isSearchBarDisplayed={true} />
+              <Flex as="main" role="main" direction="column" flex="1" py="100px" px="30px">
+                {children}
+              </Flex>
+              <Footer />
             </Flex>
-            <Footer />
-          </Flex>
-        </Providers>
-      </body>
-    </html>
-
-
-
+          </Providers>
+        </body>
+      </html>
   )
+  else {
+    return (
+      <html>
+        <body>
+          <Providers>
+            {children}
+          </Providers>
+        </body>
+      </html>
+    )
+  }
 }

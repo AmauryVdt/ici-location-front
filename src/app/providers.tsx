@@ -4,6 +4,8 @@
 import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider } from '@chakra-ui/react'
 import { extendTheme } from '@chakra-ui/react'
+import { frFR } from '@clerk/localizations'
+import { ClerkProvider } from '@clerk/nextjs'
 
 const theme = extendTheme({
   colors: {
@@ -41,8 +43,10 @@ const theme = extendTheme({
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <CacheProvider>
-      <ChakraProvider theme={theme}>{children}</ChakraProvider>
-    </CacheProvider>
+    <ClerkProvider localization={frFR}>
+      <CacheProvider >
+        <ChakraProvider theme={theme}>{children}</ChakraProvider>
+      </CacheProvider>
+    </ClerkProvider>
   )
 }
