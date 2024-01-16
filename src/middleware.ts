@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // Please edit this to allow other routes to be public as needed.
 // See https://clerk.com/docs/references/nextjs/auth-middleware for more information about configuring your Middleware
 export default authMiddleware({
-  publicRoutes: ["/", "/properties", "/propertie/[id]", "/sign-up", "/sign-in", "/api/webhooks(.*)"], //|| (req => req.url.includes('/auth')),
+  publicRoutes: ["/", "/properties", "/propertie/:id(\\d+)", "/sign-up", "/sign-in", "/api/webhooks(.*)"], //|| (req => req.url.includes('/auth')),
   // afterAuth(auth, req, evt) {
   //   // Handle users who aren't authenticated
   //   if (!auth.userId && !auth.isPublicRoute) {
