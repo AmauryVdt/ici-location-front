@@ -1,15 +1,15 @@
 import HookUsage from '@/components/hookUsage';
-import { Radio, HStack, VStack, Text, RadioGroup, FormControl, FormLabel, Input, FormHelperText, InputGroup, InputRightAddon, Box, FormErrorMessage, Heading, List, ListItem, Checkbox, Stack, useRadioGroup, Link } from '@chakra-ui/react';
+import { Radio, HStack, VStack, Text, RadioGroup, FormControl, FormLabel, Input, FormHelperText, InputGroup, InputRightAddon, Box, FormErrorMessage, Heading, List, ListItem, Checkbox, Stack, useRadioGroup, Link, CheckboxGroup } from '@chakra-ui/react';
 import React from 'react';
 import AddressInput from '@/components/addressInput';
 import RadioCard, { RadioOption } from '@/components/radioCard';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Property, PropertyInformation } from '../page';
 
-interface HookUsageProps {
-  features: Features;
-  onValueChange: (value: Features) => void;
-}
+// interface HookUsageProps {
+//   features: Features;
+//   onValueChange: (value: Features) => void;
+// }
 
 interface InformationProps {
   data: PropertyInformation;
@@ -27,15 +27,54 @@ interface Features {
 
 const Component1: React.FC<InformationProps> = ({ data, setData }) => {
 
-  const handleChange = (nextValue: string /*e: React.ChangeEvent<HTMLInputElement>*/) => {
-    // const { name, value } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const target = e.target as HTMLInputElement; // Cast to HTMLInputElement to get access to `checked`
+    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name;
 
+    // TODO: mettre la logique du chiffre entier ici à la palce de hookusage
+
+    // console.log('name', name);
+    // console.log('value', value);
+    // console.log('e', e);
+    // console.log('target', target);
+    // console.log('target.type', target.type);
+  
     setData(prevState => ({
       ...prevState,
-      informations: {
+      propertyInformation: {
         ...prevState.propertyInformation,
-        value: nextValue
-        // [name]: value
+        [name]: value,
+      }
+    }));
+  };
+
+  const handleNumberChange = (name: string) => (nextValue: number | null) => {
+    setData(prevState => ({
+      ...prevState,
+      propertyInformation: {
+        ...prevState.propertyInformation,
+        [name]: nextValue
+      }
+    }));
+  }
+
+  const handleRadioChange = (name: string) => (nextValue: string | number | boolean) => {
+    setData(prevState => ({
+      ...prevState,
+      propertyInformation: {
+        ...prevState.propertyInformation,
+        [name]: nextValue
+      }
+    }));
+  };
+
+  const handleStringChange = (name: string) => (nextValue: string) => {
+    setData(prevState => ({
+      ...prevState,
+      propertyInformation: {
+        ...prevState.propertyInformation,
+        [name]: nextValue
       }
     }));
   };
@@ -59,7 +98,7 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
     setIsFocused(true);
   };
 
-  const isError = !surface || surface < 9
+  const isError = !data.area || data.area < 9
 
   const mawWInput = '300px';
 
@@ -104,9 +143,7 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
 
       <FormControl isRequired >
         <FormLabel>Quel est le type de votre bien ?</FormLabel>
-        {/* <RadioGroup onChange={setVfurnished} value={furnished} colorScheme='black'> */}
-
-        <RadioGroup onChange={handleChange} value={data.propertyType.value} colorScheme='black'>
+        <RadioGroup onChange={handleRadioChange('propertyType')} value={data.propertyType} colorScheme='black'>
           <HStack>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
               <Radio value='Appartement'>Appartement</Radio>
@@ -124,23 +161,25 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
       <FormControl isRequired isInvalid={isFocused && isError} maxW={mawWInput}>
         <FormLabel>Quel est la surface de votre bien ?</FormLabel>
         <InputGroup size='sm' borderRadius='lg'>
-          <Input onBlur={handleFocus} value={surface.toString()} onChange={handleSurfaceChange} borderRadius='lg' />
-          <InputRightAddon borderEndRadius='lg' children='m²' />
+          <Input name="area" onBlur={handleFocus} value={data.area} onChange={handleChange} borderRadius='lg' />
+          <InputRightAddon borderEndRadius='lg'>
+            m²
+          </InputRightAddon>
         </InputGroup>
-        {isFocused && isError && <FormErrorMessage>La surface n'est pas conforme à la loi Carrez.</FormErrorMessage>}
+        {isFocused && isError && <FormErrorMessage>La surface n&apos;est pas conforme à la loi Carrez.</FormErrorMessage>}
       </FormControl>
 
       <FormControl as='fieldset' maxW={mawWInput}>
         <FormLabel as='legend'>
           Votre bien est-il meublé ?
         </FormLabel>
-        <RadioGroup onChange={setVfurnished} value={furnished} colorScheme='black'>
+        <RadioGroup onChange={handleRadioChange('furnished')} value={data.furnished.toString()} colorScheme='black'>
           <HStack>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Radio value='1'>Oui</Radio>
+              <Radio value='true'>Oui</Radio>
             </Box>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Radio value='0'>Non</Radio>
+              <Radio value='false'>Non</Radio>
             </Box>
           </HStack>
         </RadioGroup>
@@ -148,10 +187,11 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
 
       <FormControl isRequired maxW={mawWInput}>
         <FormLabel>Combien y a-t-il de pièces ?</FormLabel>
-        <HookUsage value={room} onValueChange={(newValue) => setRoom(newValue)} />
+        <HookUsage value={data.rooms} onValueChange={handleNumberChange('rooms')} />
         <FormHelperText>La cuisine, la salle de bain et les toilettes ne sont pas à prendre en compte.</FormHelperText>
       </FormControl>
 
+      {/* Pas encore set */}
       <FormControl maxW={mawWInput}>
         <FormLabel>Combien y a-t-il de chambres ?</FormLabel>
         <HookUsage value={bedroom} onValueChange={(newValue) => setBedroom(newValue)} />
@@ -159,22 +199,19 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
 
       <FormControl maxW={mawWInput}>
         <FormLabel>Quels sont les avantages ?</FormLabel>
-        <RadioGroup onChange={setVfurnished} value={furnished} colorScheme='black' maxW='150px'>
-          <Stack>
+        <CheckboxGroup colorScheme='black'>
+          <Stack maxW='150px'>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Checkbox colorScheme='black'>Balcon</Checkbox>
+              <Checkbox name='balcony' isChecked={data.balcony} onChange={handleChange}>Balcon</Checkbox>
             </Box>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Checkbox colorScheme='black'>Terrasse</Checkbox>
+              <Checkbox name='terrace' isChecked={data.terrace} onChange={handleChange}>Terrasse</Checkbox>
             </Box>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Checkbox colorScheme='black'>Parking</Checkbox>
-            </Box>
-            <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Checkbox colorScheme='black'>Ascenseur</Checkbox>
+              <Checkbox name='garden' isChecked={data.garden} onChange={handleChange}>Garden</Checkbox>
             </Box>
           </Stack>
-        </RadioGroup>
+        </CheckboxGroup>
         {/* <Text fontSize='sm'>- Balcon</Text>
             <Text fontSize='sm'>- Terrasse</Text>
             <Text fontSize='sm'>- Parking</Text>
@@ -211,21 +248,25 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
             <Text fontSize='sm'>- WC à la népalaise</Text> */}
 
       </FormControl>
+
+      {/* No set yet */}
       <FormControl maxW={mawWInput}>
-        <FormLabel>Nombre d'étage</FormLabel>
+        <FormLabel>Nombre d&apos;étage</FormLabel>
         <HookUsage value={floor} onValueChange={(newValue) => setFloor(newValue)} />
       </FormControl>
 
       <FormControl isRequired maxW={mawWInput}>
-        <FormLabel>Quelle est l'adresse de votre bien ?</FormLabel>
-        <AddressInput />
+        <FormLabel>Quelle est l&apos;adresse de votre bien ?</FormLabel>
+        <AddressInput inputValue2={data.address} onValueChange={handleStringChange('address')} />
       </FormControl>
 
       <FormControl isRequired maxW={mawWInput}>
         <FormLabel>Quelle est le loyer de votre bien ?</FormLabel>
         <InputGroup size='sm' borderRadius='lg'>
-          <Input borderRadius='lg' />
-          <InputRightAddon borderEndRadius='lg' children='€' />
+          <Input name="price" onBlur={handleFocus} value={data.price} onChange={handleChange} borderRadius='lg' />
+          <InputRightAddon borderEndRadius='lg'>
+            €
+          </InputRightAddon>
         </InputGroup>
         <FormHelperText>Le loyer comprend toutes les charges</FormHelperText>
       </FormControl>
@@ -236,8 +277,8 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
           {optionsEnergyClass.map((value) => {
             const radio = getRadioPropsEnergyClass({ value: value.value })
             return (
-              <RadioCard key={value.value} radioProps={radio} option={value}>
-              </RadioCard>
+              <RadioCard key={value.value} radioProps={radio} option={value} />
+              // </RadioCard>
             )
           })}
         </HStack>
@@ -251,12 +292,12 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
 
       <FormControl maxW={mawWInput}>
         <FormLabel>GES</FormLabel>
-        <HStack {...groupEnergryClass}>
+        <HStack {...groupGES}>
           {optionsGES.map((value) => {
             const radio = getRadioPropsGES({ value: value.value })
             return (
-              <RadioCard key={value.value} radioProps={radio} option={value}>
-              </RadioCard>
+              <RadioCard key={value.value} radioProps={radio} option={value} />
+              // </RadioCard>
             )
           })}
         </HStack>

@@ -8,7 +8,12 @@ interface Address {
   };
 }
 
-const AddressInput: React.FC = () => {
+interface AddressInputProps {
+  inputValue2: string;
+  onValueChange: (address: string) => void;
+}
+
+const AddressInput: React.FC<AddressInputProps> = ({ inputValue2, onValueChange }) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [inputValue, setInputValue] = useState<string>('');
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
@@ -26,7 +31,8 @@ const AddressInput: React.FC = () => {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setInputValue(value);
+    // setInputValue(value);
+    onValueChange(value);
     if (value.length > 2) {
       fetchAddresses(value);
     } else {
@@ -35,7 +41,10 @@ const AddressInput: React.FC = () => {
   };
 
   const handleAddressSelect = (address: string) => {
-    setInputValue(address);
+    // setInputValue(address);
+    console.log(address);
+    onValueChange(address);
+    console.log(inputValue2)
     setAddresses([]);
   };
 
@@ -46,10 +55,9 @@ const AddressInput: React.FC = () => {
   return (
     <div>
       <Input
-        value={inputValue}
+        value={inputValue2}
         onChange={handleInputChange}
         onFocus={handleFocus}
-        onBlur={handleFocus}
         placeholder="Entrez une adresse"
         size="sm"
         borderRadius="md"
@@ -65,7 +73,7 @@ const AddressInput: React.FC = () => {
                 borderColor='lightgray'
                 key={index} 
                 cursor="pointer"
-                onClick={() => handleAddressSelect(address.properties.label)}>
+                onClick={() => {handleAddressSelect(address.properties.label)}}>
                 {address.properties.label}
                 </ListItem>
             ))}

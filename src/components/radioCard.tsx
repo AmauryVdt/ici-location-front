@@ -3,7 +3,6 @@ import React from 'react';
 
 interface RadioCardProps {
   option: RadioOption;
-  // children: React.ReactNode;
   radioProps: ReturnType<ReturnType<typeof useRadioGroup>["getRadioProps"]>
 }
 
@@ -18,6 +17,9 @@ const RadioCard: React.FC<RadioCardProps> = ({ radioProps, option }) => {
 
   const input = getInputProps()
   const checkbox = getRadioProps()
+
+  console.log('radioProps : ', radioProps)
+  console.log('option : ', option)
 
   return (
     <Box as='label'>

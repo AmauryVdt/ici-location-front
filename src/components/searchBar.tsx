@@ -12,7 +12,7 @@ const SearchBar: React.FC = () => {
             <LinkBox onClick={onOpen} cursor='pointer'>
                 <Flex bg="white" h="40px" align="center" borderRadius="full" boxShadow="0 0 0 1px rgba(0, 0, 0, 0.1)" overflow="hidden">
                     <Box textAlign="center" p={4}>
-                        <Text>N'importe où</Text>
+                        <Text>N&apos;importe où</Text>
                     </Box>
 
                     <Divider h="30px" color='lightgray' orientation="vertical" />

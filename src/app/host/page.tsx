@@ -35,11 +35,6 @@ interface PageProps {
   index: number;
 }
 
-interface PropertyType {
-  value: string;
-  label: string;
-}[]
-
 export interface Property {
   propertyInformation: PropertyInformation;
   propertyPhotos: PropertyPhotos;
@@ -47,19 +42,19 @@ export interface Property {
 }
 
 export interface PropertyInformation {
-  propertyType: PropertyType;
+  propertyType: string;
   title: string;
+  price: number;
   energyClass: number;
   ges: number;
   address: string;
   area: number;
   furnished: boolean;
   rooms: number;
-  bedrooms: number;
   balcony: boolean;
   terrace: boolean;
   garden: boolean;
-  praking: number;
+  parking: number;
 }
 
 export interface PropertyPhotos {
@@ -70,17 +65,17 @@ export interface PropertyDescription {
   description: string;
 }
 
-const propertyTypes: PropertyType[] = [
-  { value: 'Maison', label: 'Maison' },
-  { value: 'Appartement', label: 'Appartement' },
-  { value: 'Studio', label: 'Studio' },
-  { value: 'Villa', label: 'Villa' },
-  { value: 'Chambre', label: 'Chambre' },
-  { value: 'Bureau', label: 'Bureau' },
-  { value: 'Commerce', label: 'Commerce' },
-  { value: 'Parking', label: 'Parking' },
-  { value: 'Terrain', label: 'Terrain' },
-  { value: 'Autre', label: 'Autre' },
+const propertyTypes: string[] = [
+  'Maison',
+  'Appartement',
+  'Studio',
+  'Villa',
+  'Chambre',
+  'Bureau',
+  'Commerce',
+  'Parking',
+  'Terrain',
+  'Autre',
 ]
 
 const steps = [
@@ -90,23 +85,23 @@ const steps = [
   { title: 'Visite', description: 'Organisez des visites' },
 ]
 
-const HostPage: React.FC<PageProps> = () => {
+const HostPage: React.FC = () => {
 
   const [property, setProperty] = useState<Property>({
     propertyInformation: {
       propertyType: propertyTypes[0],
       title: '',
+      price: 0,
       energyClass: 0,
       ges: 0,
       address: '',
-      area: 0,
+      area: 10,
       furnished: false,
       rooms: 0,
-      bedrooms: 0,
       balcony: false,
       terrace: false,
       garden: false,
-      praking: 0,
+      parking: 0,
     },
     propertyPhotos: {
       photos: [],

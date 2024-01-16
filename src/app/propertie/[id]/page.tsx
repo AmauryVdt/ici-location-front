@@ -126,7 +126,7 @@ export default function Propertie({ params }: { params: { id: string } }) {
                               </AspectRatio>
                           </VStack>
                           <VStack id='rdv' align={'start'} spacing={4}>
-                              <Heading as='h2' size='md'>Visiter l'appartement</Heading>
+                              <Heading as='h2' size='md'>Visiter l&apos;appartement</Heading>
                               <Input
                                   placeholder="Select Date and Time"
                                   size="md"
