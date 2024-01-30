@@ -331,7 +331,7 @@ const HostPage: React.FC = () => {
           <ModalBody>
             Voulez-vous publier cette merveille ?<br/><br/>
             Si vous hésitez, vous pouvez toujours retourner en arrière pour vous assurer que tout est parfait.<br/>
-            <Text as='i' color='darkgray' fontSize='xs'>Même si on sait que c'est déjà parfait.</Text>
+            <Text as='i' color='darkgray' fontSize='xs'>Même si on sait que c&lsquo;est déjà parfait.</Text>
           </ModalBody>
 
           <ModalFooter>

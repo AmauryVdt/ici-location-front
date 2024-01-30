@@ -232,7 +232,7 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
       {['apartment'].includes(data.propertyType) && (
 
       <FormControl maxW={mawWInput}>
-        <FormLabel>Combien y a-t-il d'étage(s) ?</FormLabel>
+        <FormLabel>Combien y a-t-il d&lsquo;étage(s) ?</FormLabel>
         <HookUsage value={data.floorsNumber} onValueChange={handleNumberChange('floorsNumber')} />
       </FormControl>
       )}
