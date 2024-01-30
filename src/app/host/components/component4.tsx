@@ -8,7 +8,7 @@ const Component4: React.FC = () => {
       Faire un recapitulatif de l&lsquo;annonce.
       Utiliser la page de présentation d&lsquo;annonce mais ajouter un paramètre pour afficher les données de l&lsquo;annonce.
       Le paramatre sera un objet de type Property || Undefined.
-      Si c&lsquo;est Undefined, on utiliser les infos de l'API sinon on utilise les infos de l&lsquo;objet.
+      Si c&lsquo;est Undefined, on utiliser les infos de l&lsquo;API sinon on utilise les infos de l&lsquo;objet.
     </Text>
   );
 };
