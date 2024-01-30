@@ -6,11 +6,6 @@ import RadioCard, { RadioOption } from '@/components/radioCard';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Property, PropertyInformation } from '../page';
 
-// interface HookUsageProps {
-//   features: Features;
-//   onValueChange: (value: Features) => void;
-// }
-
 interface InformationProps {
   data: PropertyInformation;
   setData: React.Dispatch<React.SetStateAction<Property>>;
@@ -39,7 +34,7 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
     // console.log('e', e);
     // console.log('target', target);
     // console.log('target.type', target.type);
-  
+
     setData(prevState => ({
       ...prevState,
       propertyInformation: {
@@ -48,6 +43,22 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
       }
     }));
   };
+
+  const handleNumberChangev2 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const NULLABLE_POSITIVE_INTEGER_REGEX = /^\d*$/;
+
+    const strToPositiveInteger = (str: string): number | null => {
+        const num = parseInt(str, 10);
+        return Number.isNaN(num) ? null : num;
+    }
+    
+    if(NULLABLE_POSITIVE_INTEGER_REGEX.test(e.target.value)) {
+      e.target.value = strToPositiveInteger(e.target.value)?.toString() ?? '0';
+      handleChange(e);
+    }
+    else
+      e.preventDefault();
+  }
 
   const handleNumberChange = (name: string) => (nextValue: number | null) => {
     setData(prevState => ({
@@ -67,6 +78,9 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
         [name]: nextValue
       }
     }));
+    console.log('nextValue', nextValue);
+    console.log('data.propertyType', data.propertyType);
+    console.log(['house, apartment'].includes(data.propertyType))
   };
 
   const handleStringChange = (name: string) => (nextValue: string) => {
@@ -79,26 +93,13 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
     }));
   };
 
-  const [furnished, setVfurnished] = React.useState('0')
-  const [surface, setSurface] = React.useState<number>(0)
-  const [room, setRoom] = React.useState<number | null>(0)
-  const [bedroom, setBedroom] = React.useState<number | null>(0)
-  const [floor, setFloor] = React.useState<number | null>(0)
-
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
-
-  const handleSurfaceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSurface = parseFloat(e.target.value);
-    if (!isNaN(newSurface)) {
-      setSurface(newSurface);
-    }
-  };
 
   const handleFocus = () => {
     setIsFocused(true);
   };
 
-  const isError = !data.area || data.area < 9
+  const isError = !data.totalArea || data.totalArea < 9
 
   const mawWInput = '300px';
 
@@ -126,13 +127,13 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
 
   const { getRootProps: getRootPropsEnergyClass, getRadioProps: getRadioPropsEnergyClass } = useRadioGroup({
     name: 'framework',
-    defaultValue: 'react',
-    onChange: console.log,
+    defaultValue: data.energyClass,
+    onChange: handleStringChange('energyClass'),
   })
   const { getRootProps: getRootPropsGES, getRadioProps: getRadioPropsGES } = useRadioGroup({
     name: 'framework',
-    defaultValue: 'react',
-    onChange: console.log,
+    defaultValue: data.ges,
+    onChange: handleStringChange('ges'),
   })
 
   const groupEnergryClass = getRootPropsEnergyClass()
@@ -146,29 +147,44 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
         <RadioGroup onChange={handleRadioChange('propertyType')} value={data.propertyType} colorScheme='black'>
           <HStack>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Radio value='Appartement'>Appartement</Radio>
+              <Radio value='apartment'>Appartement</Radio>
             </Box>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Radio value='Maison'>Maison</Radio>
+              <Radio value='house'>Maison</Radio>
             </Box>
             <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
-              <Radio value='Parking'>Parking</Radio>
+              <Radio value='parking'>Parking</Radio>
             </Box>
           </HStack>
         </RadioGroup>
       </FormControl>
 
+      {['house', 'apartment'].includes(data.propertyType) && (
       <FormControl isRequired isInvalid={isFocused && isError} maxW={mawWInput}>
-        <FormLabel>Quel est la surface de votre bien ?</FormLabel>
+        <FormLabel>Quel est la surface habitable de votre bien ?</FormLabel>
         <InputGroup size='sm' borderRadius='lg'>
-          <Input name="area" onBlur={handleFocus} value={data.area} onChange={handleChange} borderRadius='lg' />
+          <Input name="livingArea" onBlur={handleFocus} value={data.livingArea} onChange={handleNumberChangev2} borderRadius='lg' />
           <InputRightAddon borderEndRadius='lg'>
             m²
           </InputRightAddon>
         </InputGroup>
         {isFocused && isError && <FormErrorMessage>La surface n&apos;est pas conforme à la loi Carrez.</FormErrorMessage>}
       </FormControl>
+      )}
 
+      {['house'].includes(data.propertyType) && (
+      <FormControl maxW={mawWInput}>
+        <FormLabel>Quel est la surface total de votre bien ?</FormLabel>
+        <InputGroup size='sm' borderRadius='lg'>
+          <Input name="totalArea" onBlur={handleFocus} value={data.totalArea} onChange={handleNumberChangev2} borderRadius='lg' />
+          <InputRightAddon borderEndRadius='lg'>
+            m²
+          </InputRightAddon>
+        </InputGroup>
+      </FormControl>
+      )}
+
+      {['house', 'apartment'].includes(data.propertyType) && (
       <FormControl as='fieldset' maxW={mawWInput}>
         <FormLabel as='legend'>
           Votre bien est-il meublé ?
@@ -184,18 +200,52 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
           </HStack>
         </RadioGroup>
       </FormControl>
+      )}
 
+      {['house', 'apartment'].includes(data.propertyType) && (
       <FormControl isRequired maxW={mawWInput}>
         <FormLabel>Combien y a-t-il de pièces ?</FormLabel>
         <HookUsage value={data.rooms} onValueChange={handleNumberChange('rooms')} />
         <FormHelperText>La cuisine, la salle de bain et les toilettes ne sont pas à prendre en compte.</FormHelperText>
       </FormControl>
+      )}
 
-      {/* Pas encore set */}
-      <FormControl maxW={mawWInput}>
-        <FormLabel>Combien y a-t-il de chambres ?</FormLabel>
-        <HookUsage value={bedroom} onValueChange={(newValue) => setBedroom(newValue)} />
+      {['apartment'].includes(data.propertyType) && (
+
+      <FormControl as='fieldset' maxW={mawWInput}>
+        <FormLabel as='legend'>
+          Votre bien possède-t-il un Ascenseur ?
+        </FormLabel>
+        <RadioGroup onChange={handleRadioChange('lift')} value={data.lift.toString()} colorScheme='black'>
+          <HStack>
+            <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
+              <Radio value='true'>Oui</Radio>
+            </Box>
+            <Box py='1' px='5' borderRadius='md' border='1px' borderColor='lightgray'>
+              <Radio value='false'>Non</Radio>
+            </Box>
+          </HStack>
+        </RadioGroup>
       </FormControl>
+      )}
+
+      {['apartment'].includes(data.propertyType) && (
+
+      <FormControl maxW={mawWInput}>
+        <FormLabel>Combien y a-t-il d'étage(s) ?</FormLabel>
+        <HookUsage value={data.floorsNumber} onValueChange={handleNumberChange('floorsNumber')} />
+      </FormControl>
+      )}
+
+      {['house', 'apartment'].includes(data.propertyType) && (
+
+      <FormControl maxW={mawWInput}>
+        <FormLabel>A quelle étage se situe votre bien ?</FormLabel>
+        <HookUsage value={data.floor} onValueChange={handleNumberChange('floor')} />
+      </FormControl>
+      )}
+
+      {['house', 'apartment'].includes(data.propertyType) && (
 
       <FormControl maxW={mawWInput}>
         <FormLabel>Quels sont les avantages ?</FormLabel>
@@ -212,6 +262,81 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
             </Box>
           </Stack>
         </CheckboxGroup>
+      </FormControl>
+      )}
+
+      <FormControl isRequired maxW={mawWInput}>
+        <FormLabel>Quelle est l&apos;adresse de votre bien ?</FormLabel>
+        <AddressInput inputValue2={data.address} onValueChange={handleStringChange('address')} />
+      </FormControl>
+
+      <FormControl isRequired maxW={mawWInput}>
+        <FormLabel>Quelle est le loyer de votre bien ?</FormLabel>
+        <InputGroup size='sm' borderRadius='lg'>
+          <Input name="price" onBlur={handleFocus} value={data.price} onChange={handleNumberChangev2} borderRadius='lg' />
+          <InputRightAddon borderEndRadius='lg'>
+            €
+          </InputRightAddon>
+        </InputGroup>
+        <FormHelperText>Le loyer comprend toutes les charges</FormHelperText>
+      </FormControl>
+
+      {['house', 'apartment'].includes(data.propertyType) && (
+      <FormControl maxW={mawWInput}>
+        <FormLabel>Classe énergie</FormLabel>
+        <HStack {...groupEnergryClass}>
+          {optionsEnergyClass.map((value) => {
+            const radio = getRadioPropsEnergyClass({ value: value.value })
+            return (
+              <RadioCard key={value.value} radioProps={radio} option={value} />
+            )
+          })}
+        </HStack>
+        <FormHelperText>
+          <Link href='https://www.ecologie.gouv.fr/diagnostic-performance-energetique-dpe' isExternal>
+            En savoir plus
+            <ExternalLinkIcon mx='2px' />
+          </Link>
+        </FormHelperText>
+      </FormControl>
+      )}
+
+      {['house', 'apartment'].includes(data.propertyType) && (
+
+      <FormControl maxW={mawWInput}>
+        <FormLabel>GES</FormLabel>
+        <HStack {...groupGES}>
+          {optionsGES.map((value) => {
+            const radio = getRadioPropsGES({ value: value.value })
+            return (
+              <RadioCard key={value.value} radioProps={radio} option={value} />
+            )
+          })}
+        </HStack>
+        <FormHelperText>
+          <Link href='https://www.ecologie.gouv.fr/diagnostic-performance-energetique-dpe' isExternal>
+            En savoir plus
+            <ExternalLinkIcon mx='2px' />
+          </Link>
+        </FormHelperText>
+      </FormControl>
+      )}
+
+      {['house', 'apartment', 'parking'].includes(data.propertyType) && (
+      <FormControl maxW={mawWInput}>
+        <FormLabel>Combien de place de parking votre bien possède-t-il ?</FormLabel>
+        <HookUsage value={data.parking} onValueChange={handleNumberChange('parking')} />
+      </FormControl>
+      )}
+
+    </VStack>
+  );
+};
+
+export default Component1;
+
+
+
         {/* <Text fontSize='sm'>- Balcon</Text>
             <Text fontSize='sm'>- Terrasse</Text>
             <Text fontSize='sm'>- Parking</Text>
@@ -246,71 +371,3 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
             <Text fontSize='sm'>- WC à la vietnamienne</Text>
             <Text fontSize='sm'>- WC à la mongole</Text>
             <Text fontSize='sm'>- WC à la népalaise</Text> */}
-
-      </FormControl>
-
-      {/* No set yet */}
-      <FormControl maxW={mawWInput}>
-        <FormLabel>Nombre d&apos;étage</FormLabel>
-        <HookUsage value={floor} onValueChange={(newValue) => setFloor(newValue)} />
-      </FormControl>
-
-      <FormControl isRequired maxW={mawWInput}>
-        <FormLabel>Quelle est l&apos;adresse de votre bien ?</FormLabel>
-        <AddressInput inputValue2={data.address} onValueChange={handleStringChange('address')} />
-      </FormControl>
-
-      <FormControl isRequired maxW={mawWInput}>
-        <FormLabel>Quelle est le loyer de votre bien ?</FormLabel>
-        <InputGroup size='sm' borderRadius='lg'>
-          <Input name="price" onBlur={handleFocus} value={data.price} onChange={handleChange} borderRadius='lg' />
-          <InputRightAddon borderEndRadius='lg'>
-            €
-          </InputRightAddon>
-        </InputGroup>
-        <FormHelperText>Le loyer comprend toutes les charges</FormHelperText>
-      </FormControl>
-
-      <FormControl maxW={mawWInput}>
-        <FormLabel>Classe énergie</FormLabel>
-        <HStack {...groupEnergryClass}>
-          {optionsEnergyClass.map((value) => {
-            const radio = getRadioPropsEnergyClass({ value: value.value })
-            return (
-              <RadioCard key={value.value} radioProps={radio} option={value} />
-              // </RadioCard>
-            )
-          })}
-        </HStack>
-        <FormHelperText>
-          <Link href='https://www.ecologie.gouv.fr/diagnostic-performance-energetique-dpe' isExternal>
-            En savoir plus
-            <ExternalLinkIcon mx='2px' />
-          </Link>
-        </FormHelperText>
-      </FormControl>
-
-      <FormControl maxW={mawWInput}>
-        <FormLabel>GES</FormLabel>
-        <HStack {...groupGES}>
-          {optionsGES.map((value) => {
-            const radio = getRadioPropsGES({ value: value.value })
-            return (
-              <RadioCard key={value.value} radioProps={radio} option={value} />
-              // </RadioCard>
-            )
-          })}
-        </HStack>
-        <FormHelperText>
-          <Link href='https://www.ecologie.gouv.fr/diagnostic-performance-energetique-dpe' isExternal>
-            En savoir plus
-            <ExternalLinkIcon mx='2px' />
-          </Link>
-        </FormHelperText>
-      </FormControl>
-      
-    </VStack>
-  );
-};
-
-export default Component1;

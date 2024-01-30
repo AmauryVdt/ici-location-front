@@ -20,12 +20,23 @@ import {
   Text,
   Flex,
   Spacer,
-  SimpleGrid
+  SimpleGrid,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useToast
 } from "@chakra-ui/react"
 import Component1 from './components/component1';
 import Component2 from './components/component2';
 import Component3 from './components/component3';
 import Component4 from './components/component4';
+import { useAuth } from '@clerk/nextjs';
+import { PromiseBasedToast } from '@/components/toaster';
 
 // const metadata: Metadata = {
 //     title: 'Next.js',
@@ -37,79 +48,204 @@ interface PageProps {
 
 export interface Property {
   propertyInformation: PropertyInformation;
-  propertyPhotos: PropertyPhotos;
+  propertyPicture: PropertyPicture;
   propertyDescription: PropertyDescription;
 }
 
 export interface PropertyInformation {
   propertyType: string;
-  title: string;
   price: number;
-  energyClass: number;
-  ges: number;
+  energyClass: string;
+  ges: string;
   address: string;
-  area: number;
+  totalArea: number;
+  livingArea: number;
   furnished: boolean;
   rooms: number;
+  floor: number;
+  floorsNumber: number;
+  lift: boolean;
   balcony: boolean;
   terrace: boolean;
   garden: boolean;
   parking: number;
 }
 
-export interface PropertyPhotos {
-  photos: string[];
+export interface PropertyPicture {
+  photos: File[];
 }
 
 export interface PropertyDescription {
+  title: string;
   description: string;
 }
 
 const propertyTypes: string[] = [
-  'Maison',
-  'Appartement',
-  'Studio',
-  'Villa',
-  'Chambre',
-  'Bureau',
-  'Commerce',
-  'Parking',
-  'Terrain',
-  'Autre',
+  'house',
+  'apartment',
+  'parking',
+  'land',
+  'details',
+  'other',
 ]
 
 const steps = [
   { title: 'Information', description: 'Que possède votre bien ?' },
   { title: 'Photo', description: 'Montrez-nous votre bien !' },
   { title: 'Description', description: 'Dites-nous en plus !' },
-  { title: 'Visite', description: 'Organisez des visites' },
+  { title: 'Valider', description: 'Confirmez votre annonce' },
+  // { title: 'Visite', description: 'Organisez des visites' },
 ]
 
 const HostPage: React.FC = () => {
 
+  const { getToken } = useAuth();
+
   const [property, setProperty] = useState<Property>({
     propertyInformation: {
       propertyType: propertyTypes[0],
-      title: '',
       price: 0,
-      energyClass: 0,
-      ges: 0,
+      energyClass: 'Aucun',
+      ges: 'Aucun',
       address: '',
-      area: 10,
+      totalArea: 10,
+      livingArea: 0,
       furnished: false,
       rooms: 0,
+      floor: 0,
+      floorsNumber: 0,
+      lift: false,
       balcony: false,
       terrace: false,
       garden: false,
       parking: 0,
     },
-    propertyPhotos: {
-      photos: [],
+    propertyPicture: {
+      photos: Array(5).fill(''),
     },
     propertyDescription: {
+      title: '',
       description: '',
     },
   })
+
+  // const sendWithToaster = async () => {
+  //   const toast = useToast();
+  //   const promiseToast = send();
+  //   toast.promise(promiseToast, {
+  //     success: { title: 'Votre annonce bien a été créé', description: 'Youhou 🎉' },
+  //     error: { title: 'Oups', description: 'Désolé, on a rencontré un problème lors de la création de votre annonce' },
+  //     loading: { title: 'Création de votre annonce', description: 'Patientez, c\'est bientôt prêt!' },
+  //   })
+  // }
+
+  const send = async () => {
+
+    try {
+      const token = await getToken();
+
+      const promises = property.propertyPicture.photos.map(photo => getPresignedUrl());
+      const urls = await Promise.all(promises);
+      const promises2 = urls.map(url => uploadImageToS3(property.propertyPicture.photos[urls.indexOf(url)], url));
+      await Promise.all(promises2);
+  
+      const propertyToSend = {
+        ...property,
+        propertyPicture: {
+          photos: urls,
+        }
+      }
+  
+      const body = {
+        type: propertyToSend.propertyInformation.propertyType,
+        title: propertyToSend.propertyDescription.title,
+        description: propertyToSend.propertyDescription.description,
+        energyClass: propertyToSend.propertyInformation.energyClass,
+        ges: propertyToSend.propertyInformation.ges,
+        price: propertyToSend.propertyInformation.price,
+        address: propertyToSend.propertyInformation.address,
+        images: propertyToSend.propertyPicture.photos,
+        propertyType: propertyToSend.propertyInformation.propertyType,
+        totalArea: propertyToSend.propertyInformation.totalArea,
+        livingArea: propertyToSend.propertyInformation.livingArea,
+        furnished: propertyToSend.propertyInformation.furnished,
+        rooms: propertyToSend.propertyInformation.rooms,
+        floor: propertyToSend.propertyInformation.floor,
+        floorsNumber: propertyToSend.propertyInformation.floorsNumber,
+        lift: propertyToSend.propertyInformation.lift,
+        balcony: propertyToSend.propertyInformation.balcony,
+        terrace: propertyToSend.propertyInformation.terrace,
+        garden: propertyToSend.propertyInformation.garden,
+        parking: propertyToSend.propertyInformation.parking,
+      }
+  
+      await createProperty(token, body);
+    }
+    catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+
+  const getPresignedUrl = async (): Promise<string> => {
+    try {
+      const token = await getToken();
+      const response = await fetch('http://localhost:3008/presigned-url', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok)
+        throw new Error(`Server responded with ${response.status}`);
+      const data = await response.json();
+      return data.url;
+    }
+    catch (error) {
+      throw error;
+    }
+  }
+
+  const uploadImageToS3 = async (file: File, presignedUrl: string): Promise<void> => {
+    try {
+      const response = await fetch(presignedUrl, {
+        method: 'PUT',
+        body: file,
+        headers: {
+          'Content-Type': 'image/jpeg',
+        },
+        mode: 'cors',
+      });
+  
+      if (response.ok) {
+        console.log('Image uploaded successfully');
+      } else {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const createProperty = async (token: string | null, body: any) => {
+    try{
+      const response = await fetch('http://localhost:3008/property', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      body: JSON.stringify(body),
+      })
+      if (!response.ok)
+        throw new Error(`Server responded with ${response.status}`);
+      return response.json();
+    }
+    catch (error) {
+      throw error;
+    }
+  }
 
   const { activeStep, setActiveStep } = useSteps({
     index: 0,
@@ -120,6 +256,9 @@ const HostPage: React.FC = () => {
     if (activeStep < steps.length - 1) {
       setActiveStep(activeStep + 1)
     }
+    else if (activeStep === steps.length - 1) {
+      onOpen();
+    }
   }
 
   const stepBack = () => {
@@ -127,6 +266,12 @@ const HostPage: React.FC = () => {
       setActiveStep(activeStep - 1)
     }
   }
+
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const rightButton = activeStep === steps.length - 1 ? 'Valider' : 'Suivant';
+
+  // TODO: Faire en sorte que tout les composants prennent toute la hauteur de la page et que s'il dépasse on puisse scroll,  comme ça les boutons on une position fixe, c'est plus érgonomique
 
   return (
     <Container maxW='900px'>
@@ -152,11 +297,19 @@ const HostPage: React.FC = () => {
           ))}
         </Stepper>
 
-        <Box w='full' boxShadow='dark-lg' bg='white' py='10' borderRadius='2xl'>
+        <Stack spacing={4} direction='row'>
+          <ButtonGroup colorScheme='black' size='sm' w='full'>
+            <Button variant='outline' onClick={stepBack}>Précedent</Button>
+            <Spacer />
+            <Button onClick={stepAhead}>{rightButton}</Button>
+          </ButtonGroup>
+        </Stack>
+
+        <Box w='full' boxShadow='dark-lg' bg='white' py='10' borderRadius='2xl' maxH=''>
           <Container>
             {activeStep === 0 && <Component1 data={property.propertyInformation} setData={setProperty}  />}
-            {activeStep === 1 && <Component2 />}
-            {activeStep === 2 && <Component3 />}
+            {activeStep === 1 && <Component2 data={property.propertyPicture} setData={setProperty} />}
+            {activeStep === 2 && <Component3 data={property.propertyDescription} setData={setProperty} />}
             {activeStep === 3 && <Component4 />}
           </Container>
         </Box>
@@ -165,10 +318,32 @@ const HostPage: React.FC = () => {
           <ButtonGroup colorScheme='black' size='sm' w='full'>
             <Button variant='outline' onClick={stepBack}>Précedent</Button>
             <Spacer />
-            <Button onClick={stepAhead}>Suivant</Button>
+            <Button onClick={stepAhead}>{rightButton}</Button>
           </ButtonGroup>
         </Stack>
       </SimpleGrid>
+
+      <Modal isOpen={isOpen} onClose={onClose} motionPreset='slideInBottom' size='lg'>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Publier cette merveille</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            Voulez-vous publier cette merveille ?<br/><br/>
+            Si vous hésitez, vous pouvez toujours retourner en arrière pour vous assurer que tout est parfait.<br/>
+            <Text as='i' color='darkgray' fontSize='xs'>Même si on sait que c'est déjà parfait.</Text>
+          </ModalBody>
+
+          <ModalFooter>
+              <Button colorScheme='black' variant='outline' mr={3} onClick={onClose}>
+                Retour
+              </Button>
+              <PromiseBasedToast functionToaster={send} buttonProps={{colorScheme: 'black', variant: 'solid'}}>Publier</PromiseBasedToast>
+              {/* <Button colorScheme='black' variant='solid' onClick={sendWithToaster}>Publier</Button> */}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
     </Container>
   );
 }

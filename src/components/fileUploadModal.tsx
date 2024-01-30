@@ -17,18 +17,24 @@ import {
   VStack,
   Center,
   Spacer,
+  ButtonGroup,
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
+import { Property } from '@/app/host/page';
 
-const FileUploadModal: React.FC = () => {
+interface FileUploadModalProps {
+  setData: React.Dispatch<React.SetStateAction<Property>>;
+}
+
+const FileUploadModal: React.FC<FileUploadModalProps> = ({ setData }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [files, setFiles] = useState<File[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const fileArray = Array.from(e.target.files);
+      const fileArray = Array.from(e.target.files)//.slice(0, 5);
       setFiles(fileArray);
       // TODO: Implement the file upload logic here
     }
@@ -43,9 +49,20 @@ const FileUploadModal: React.FC = () => {
     inputRef.current?.click();
   };
 
+  const validate = () => {
+    setData(prevState => ({
+      ...prevState,
+      propertyPicture: {
+        ...prevState.propertyPicture,
+        photos: files,
+      }
+    }));
+    onClose();
+  }
+
   return (
     <>
-      <Button onClick={onOpen}>Ajouter des photos</Button>
+      <Button onClick={onOpen}>Ajouter des photos (max 5)</Button>
 
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
@@ -106,11 +123,13 @@ const FileUploadModal: React.FC = () => {
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
-              Annuler
-            </Button>
-            <Spacer />
-            <Button colorScheme="black">Envoyer</Button>
+            <ButtonGroup colorScheme="black" size="sm" w="full">
+              <Button variant="outline" onClick={onClose}>
+                Annuler
+              </Button>
+              <Spacer />
+              <Button onClick={validate}>Valider</Button>
+            </ButtonGroup>
           </ModalFooter>
         </ModalContent>
       </Modal>

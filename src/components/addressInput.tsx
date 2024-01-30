@@ -15,7 +15,7 @@ interface AddressInputProps {
 
 const AddressInput: React.FC<AddressInputProps> = ({ inputValue2, onValueChange }) => {
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [inputValue, setInputValue] = useState<string>('');
+  // const [inputValue, setInputValue] = useState<string>('');
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
 
   const fetchAddresses = async (value: string) => {
@@ -42,9 +42,7 @@ const AddressInput: React.FC<AddressInputProps> = ({ inputValue2, onValueChange 
 
   const handleAddressSelect = (address: string) => {
     // setInputValue(address);
-    console.log(address);
     onValueChange(address);
-    console.log(inputValue2)
     setAddresses([]);
   };
 
