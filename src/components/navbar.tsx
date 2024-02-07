@@ -2,6 +2,7 @@ import { Box, Flex, Button, Heading, Spacer, ButtonGroup, Divider, Link } from '
 import SearchBar from '@/components/searchBar'
 import { ClerkProvider, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { frFR } from "@clerk/localizations";
+import { UserMenuButton } from '@/components/userMenuButton';
 
 interface NavbarProps {
   isSearchBarDisplayed: boolean;
@@ -25,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isSearchBarDisplayed }: NavbarPr
             <Button w='full' colorScheme='gray' variant='ghost'>Mettre mon bien en ligne</Button>
           </Link>
           <SignedIn>
-            <UserButton />
+            <UserMenuButton />
           </SignedIn>
           <SignedOut>
             <Link href='/sign-up'>

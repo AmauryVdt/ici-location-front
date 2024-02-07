@@ -144,15 +144,15 @@ const HostPage: React.FC = () => {
     try {
       const token = await getToken();
 
-      const promises = property.propertyPicture.photos.map(photo => getPresignedUrl());
+      const promises: Promise<{ url: string, filename: string }>[] = property.propertyPicture.photos.map(() => getPresignedUrl());
       const urls = await Promise.all(promises);
-      const promises2 = urls.map(url => uploadImageToS3(property.propertyPicture.photos[urls.indexOf(url)], url));
+      const promises2 = urls.map(url => uploadImageToS3(property.propertyPicture.photos[urls.indexOf(url)], url.url));
       await Promise.all(promises2);
   
       const propertyToSend = {
         ...property,
         propertyPicture: {
-          photos: urls,
+          photos: urls.map(url => url.filename),
         }
       }
   
@@ -187,7 +187,7 @@ const HostPage: React.FC = () => {
     }
   }
 
-  const getPresignedUrl = async (): Promise<string> => {
+  const getPresignedUrl = async (): Promise<{ url: string, filename: string }> => {
     try {
       const token = await getToken();
       const response = await fetch('http://localhost:3008/presigned-url', {
@@ -200,7 +200,7 @@ const HostPage: React.FC = () => {
       if (!response.ok)
         throw new Error(`Server responded with ${response.status}`);
       const data = await response.json();
-      return data.url;
+      return data;
     }
     catch (error) {
       throw error;

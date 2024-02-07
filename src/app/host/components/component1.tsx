@@ -237,7 +237,7 @@ const Component1: React.FC<InformationProps> = ({ data, setData }) => {
       </FormControl>
       )}
 
-      {['house', 'apartment'].includes(data.propertyType) && (
+      {['apartment'].includes(data.propertyType) && (
 
       <FormControl maxW={mawWInput}>
         <FormLabel>A quelle étage se situe votre bien ?</FormLabel>

@@ -13,7 +13,7 @@ export default function RootLayout({
 }) {
   const pathname = usePathname()
 
-  if (true || pathname !== '/auth/sign-in' && pathname !== '/auth/sign-up')
+  if (pathname !== '/auth/sign-in' && pathname !== '/auth/sign-up')
     return (
       <html>
         <body>

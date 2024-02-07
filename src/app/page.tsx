@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { UserButton } from '@clerk/nextjs';
+import { UserButton, UserProfile } from '@clerk/nextjs';
 import { Container, Img, SimpleGrid, Center } from '@chakra-ui/react'
 import { Card2 } from '@/components/card2'
 import localImage from '../assets/landing-picture.png';

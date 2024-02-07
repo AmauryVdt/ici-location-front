@@ -26,6 +26,8 @@ const Component2: React.FC<PictureProps> = ({ data, setData }) => {
       <Container maxW='full' flex='1'>
         <SimpleGrid spacing={10} minChildWidth='150px'>
 
+          <PictureBox file={undefined} />
+
           {extendedPhotos.map((photo, index) => (
             <PictureBox key={index} index={index} file={photo || undefined} />
           ))}
