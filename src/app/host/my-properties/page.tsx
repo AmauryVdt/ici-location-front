@@ -72,7 +72,7 @@ const Advert: React.FC = () => {
         </Breadcrumb>
         <Heading py='5' as="h1" size='xl' noOfLines={1}>Mes annonces</Heading>
         <Stack spacing='5'>
-        { !properties || properties.length === 0 && <Center flexDirection="column"><Text>Vous n'avez pas encore d'annonces (et c'est dommage).</Text><Button onClick={() => router.push('/host')} colorScheme='black' variant='outline'>Créer une annonce</Button></Center> }
+        { !properties || properties.length === 0 && <Center flexDirection="column"><Text>Vous n&aposavez pas encore d&aposannonces (et c&aposest dommage).</Text><Button onClick={() => router.push('/host')} colorScheme='black' variant='outline'>Créer une annonce</Button></Center> }
         { !properties && Array(5).fill('').map((_, i) => <PropertyCard key={i} />) }
         { properties && properties.map((p, i) => <PropertyCard key={i} property={p} onPropertyDelete={() => setProperties(properties.filter(p2 => p2.id !== p.id))} />) }
         </Stack>
